@@ -8,4 +8,5 @@ import com.example.demo.ModelDomain.Livraison;
 @Repository
 public interface LivraisonRepository extends JpaRepository<Livraison, Long> {
 
+    Livraison findById(Livraison livraisonId);
 }

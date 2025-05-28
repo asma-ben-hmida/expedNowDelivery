@@ -8,6 +8,7 @@ import com.example.demo.ModelDomain.Livraison;
 import com.example.demo.ModelDomain.LivraisonStatus;
 import com.example.demo.repository.DemandeLivraisonRepository;
 import com.example.demo.repository.LivraisonRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.ModelDomain.User;
 import com.example.demo.ModelDomain.UserRole;
 
@@ -21,14 +22,15 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
     private DemandeLivraisonRepository demandeLivraisonRepository;
         private LivraisonRepository livraisonRepository;
         private UserMetierService userMetierService;
+         private UserRepository userrRepository;
 
-
-   public DemandeLivraisonSMImpl(DemandeLivraisonRepository demandeLivraisonRepository, LivraisonRepository livraisonRepository,UserMetierService userMetierService)
+   public DemandeLivraisonSMImpl(DemandeLivraisonRepository demandeLivraisonRepository,UserRepository userRepository, LivraisonRepository livraisonRepository,UserMetierService userMetierService)
           {
            
             this.demandeLivraisonRepository = demandeLivraisonRepository;
             this.livraisonRepository = livraisonRepository;
             this.userMetierService = userMetierService;
+            this.userrRepository = userRepository;
             
           }
 
@@ -58,13 +60,12 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
         
            
 
-      public void annulerDemandeParClient(DemandeLivraison demandeLivraison, Long  userId ) {
-
-        User user= userMetierService.getUserById(userId);
+      public void annulerDemandeParClient(Long demandeId, Long  userId ) {
+    
+        DemandeLivraison   demamdeLivraison = demandeLivraisonRepository.findById(demandeId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
         
-          if (demandeLivraison == null || user == null  ) {
-                throw new IllegalArgumentException("des arguments sont null verifier");
-              }
+        User    user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+
 
               if (!Set.of(UserRole.CLIENT_ENTREPRiSE, UserRole.CLIENT_PROFESSIONNEL).contains(user.getRole())) {
                   throw new RuntimeException("invalid role");
@@ -86,12 +87,11 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
             }      
       
 
-         public void AcceptationParlivreur(User user, DemandeLivraison demandeLivraison){
+         public void AcceptationParlivreur(Long userId, Long demandeId){
 
-                   if (demandeLivraison == null  || user == null  )
-                   {
-                      throw new IllegalArgumentException("des arguments sont null verifier");
-                   }
+                DemandeLivraison   demamdeLivraison = demandeLivraisonRepository.findById(demandeId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+        
+                 User    user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
 
                     if (!Set.of(UserRole.LIVREUR_PERMANENT, UserRole.LIVREUR_OCCASIONNEL).contains(user.getRole())) {
 
@@ -112,12 +112,13 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
                     }
     
 
-      public void annulerLivraisonParClient(Livraison livraison,User user,DemandeLivraison demandeLivraison){
+      public void annulerLivraisonParClient(Long livraisonId,Long userId,Long demandeId){
           
-        if(livraison == null || user ==  null ) 
-         {
-            throw new IllegalArgumentException("des arguments sont verifiers null");
-         }
+                DemandeLivraison   demamdeLivraison = demandeLivraisonRepository.findById(demandeId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+        
+                 User  user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+
+                 Livraison  livraison=livraisonRepository.findById(livraisonId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
 
             if (!Set.of(UserRole.CLIENT_ENTREPRiSE, UserRole.CLIENT_PROFESSIONNEL).contains(user.getRole()))
              {
@@ -140,12 +141,11 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
                     }
 
 
-      public void CommencerLivraison(Livraison livraison, User user){
+      public void CommencerLivraison(Livraison livraisonId, User userId){
         
-        if (livraison == null || user == null) 
-          {
-            throw new IllegalArgumentException("Arguments manquants");
-          }
+         User  user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+
+         Livraison  livraison=livraisonRepository.findById(livraisonId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
         
         if (!Set.of(UserRole.LIVREUR_PERMANENT,UserRole.LIVREUR_OCCASIONNEL).contains(user.getRole()))
          {
@@ -166,11 +166,10 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
             livraisonRepository.save(livraison);
       }
 
-      public void livraisonAchever(Livraison livraison , DemandeLivraison demandeLivraison, User user){
-        if (livraison == null || user == null) 
-          {
-            throw new IllegalArgumentException("Arguments manquants");
-          }
+      public void livraisonAchever(Livraison livraisonId , User userId){
+        User  user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+
+        Livraison  livraison=livraisonRepository.findById(livraisonId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
         
         if (!Set.of(UserRole.LIVREUR_PERMANENT,UserRole.LIVREUR_OCCASIONNEL).contains(user.getRole()))
          {

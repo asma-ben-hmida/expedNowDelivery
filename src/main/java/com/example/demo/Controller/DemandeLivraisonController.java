@@ -50,9 +50,21 @@ public class DemandeLivraisonController {
         return ResponseEntity.ok(demandeUpdated);
     }
   
-     @PutMapping("/{id}")
-     public ResponseEntity<DemandeLivraisonDTO> annulerDemandeParClient(@PathVariable Long id,@RequestBody DemandeLivraisonDTO demandeLivraisonDTO){
-        DemandeLivraisonDTO demandeAnnuler = demandeLivraisonServiceApp.annulerDemandeParClient(demandeLivraisonDTO, id);
-        return ResponseEntity.ok(demandeAnnuler);
-     }
+    @PutMapping("/{id}/annuler")
+    public ResponseEntity<Void> annulerDemandeParClient(
+       @PathVariable Long id, 
+       @RequestParam Long userId) {  
+        
+    demandeLivraisonServiceApp.annulerDemandeParClient(id, userId);
+    return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/accepter")
+public ResponseEntity<Void> acceptationParLivreur(
+        @PathVariable Long id,
+        @RequestParam Long livreurId) {
+    
+    demandeLivraisonServiceApp.acceptationParLivreur(livreurId, id);
+    return ResponseEntity.ok().build();
+}
 }

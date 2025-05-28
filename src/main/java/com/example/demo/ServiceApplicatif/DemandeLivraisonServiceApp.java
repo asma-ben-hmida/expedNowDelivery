@@ -46,19 +46,13 @@ public class DemandeLivraisonServiceApp {
         return demandeLivraisonMapper.toDto(updated);
      }
 
-      public void annulerDemandeParClient(DemandeLivraisonDTO demandeDto, long userId) {
-        // Convertir les DTOs en entités
-        DemandeLivraison demande = demandeLivraisonMapper.toEntity(demandeDto);
-        demandeLivraisonServiceMetier.annulerDemandeParClient(demande, userId);
+      public void annulerDemandeParClient(Long demandeId, long userId) {
+        demandeLivraisonServiceMetier.annulerDemandeParClient(demandeId, userId);
        
     }
 
-    public void acceptationParLivreur(UserDTO userDto, DemandeLivraisonDTO demandeDto) {
-
-        User user = userMapper.toEntity(userDto);
-        DemandeLivraison demande = demandeLivraisonMapper.toEntity(demandeDto);
-
-         demandeLivraisonServiceMetier.AcceptationParlivreur(user, demande);
+    public void acceptationParLivreur(Long userId, Long demandeId) {
+       demandeLivraisonServiceMetier.AcceptationParlivreur(userId, demandeId);
     }
  
      public void annulerLivraisonParClient(LivraisonDTO livraisonDto, UserDTO userDto, DemandeLivraisonDTO demandeDto) {
