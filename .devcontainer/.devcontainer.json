@@ -1,0 +1,22 @@
+{
+  "name": "Java 17 + Java 24 Dev",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+"postCreateCommand": "bash -c 'source /usr/local/sdkman/bin/sdkman-init.sh && sdk install java 24.0.1-amzn && sdk install java 17.0.15-ms && sdk default java 17.0.15-ms && ln -sf /usr/local/sdkman/candidates/java/17.0.15-ms /usr/local/sdkman/candidates/java/current && java -version && mvn -version'",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.jdt.ls.java.home": "/usr/local/sdkman/candidates/java/17.0.15-ms"
+      },
+      "extensions": [
+        "vscjava.vscode-java-pack"
+      ]
+    }
+  },
+  "containerEnv": {
+    "JAVA_HOME": "/usr/local/sdkman/candidates/java/current",
+    "PATH": "/usr/local/sdkman/candidates/java/current/bin:${containerEnv:PATH}"
+  },
+  "remoteUser": "codespace"
+}
+
+

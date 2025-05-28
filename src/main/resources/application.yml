@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://aws-0-eu-west-3.pooler.supabase.com:6543/postgres
+    username: postgres.zclltwhzdzzyikxwqsbs
+    password: asmabenkhalifa2017
+    driver-class-name: org.postgresql.Driver
+    hikari:
+       maximum-pool-size: 10  # Réduire la taille du pool de connexions pour ne pas dépasser 60
+       minimum-idle: 2
+       idle-timeout: 30000
+       max-lifetime: 1800000
+       connection-timeout: 20000
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:     
+      ddl-auto: update
