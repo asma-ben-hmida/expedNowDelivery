@@ -17,9 +17,8 @@ public interface DemandeLivraisonMapper {
 
     @Mapping(source = "client.id", target = "clientId")
     @Mapping(source = "client.fullName", target = "clientFullName")
-    @Mapping(source = "livreur.id", target = "livreurId")
-    @Mapping(source = "livreur.fullName", target = "livreurFullName")
-    @Mapping(source ="client.adress" ,target = "adress")
+    @Mapping(source ="client.longitude" ,target = "longitude")
+    @Mapping(source ="client.latitude" ,target = "longitude")
     @Mapping(source="client.phoneNumber" , target = "phoneNumber")
     DemandeLivraisonDTO toDto(DemandeLivraison entity);
     DemandeLivraison toEntity (DemandeLivraisonDTO dto);

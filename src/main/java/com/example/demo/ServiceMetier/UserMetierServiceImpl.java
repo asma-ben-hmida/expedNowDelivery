@@ -1,9 +1,11 @@
 package com.example.demo.ServiceMetier;
 
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.lang.RuntimeException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,6 +95,39 @@ public void activateUser(Long id) {
         return userRepository.save(existingUser);
     }
 
+
+public List<User>  getLivreursdispos(){
+
+ return userRepository.findAllByRoleInDisponibleTrue(
+        List.of(UserRole.LIVREUR_OCCASIONNEL, UserRole.LIVREUR_PERMANENT)
+    );                                  
+}
+
+
+  private double calculerDistance(double lat1, double lon1, double lat2, double lon2) {
+    final int R = 6371; // Rayon de la Terre en km
+
+    double latDistance = Math.toRadians(lat2 - lat1);
+    double lonDistance = Math.toRadians(lon2 - lon1);
+    double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+            + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+            * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+}
+   public Optional<User> getLivreurDispoEtProche(double latitudeDemande ,double longitudeDemande ) {
+              
+        List<User> livreursDispo =getLivreursdispos();
+         //vide
+        if (livreursDispo.isEmpty()){
+          return Optional.empty();
+        }
+
+        User userplusProche = livreursDispo.stream().min(Comparator.comparingDouble(livreur -> calculerDistance(livreur.getLatitude(), livreur.getLongitude() ,latitudeDemande, longitudeDemande))).orElse(null);
+   
+        return Optional.ofNullable(userplusProche);
+       }
 
 /**
  * @return the userRepository

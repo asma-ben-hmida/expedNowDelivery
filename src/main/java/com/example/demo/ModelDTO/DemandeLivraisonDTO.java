@@ -2,34 +2,32 @@ package com.example.demo.ModelDTO;
 
 import java.time.LocalDate;
 import java.util.List;
-import com.example.demo.ModelDTO.ColisDTO;
-import com.example.demo.ModelDTO.UserDTO;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-import com.example.demo.ModelDTO.LivraisonDTO;
-import com.example.demo.ModelDomain.DemandeLivraisonStatus;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 
 
 @Data
-@Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DemandeLivraisonDTO {
 
-    private Long id;
-    private DemandeLivraisonStatus status;
+    @NotNull(message = "dateCreationDemande is mandatory")
     private LocalDate dateCreationDemande;
     
-    private Long clientId;
-    private String clientNom; 
+    @NotNull(message = "clientId is mandatory")
+    private Long clientId; 
 
-    private Long livreurId;
-    private String livreurNom; 
-
+    @NotEmpty(message = "colis cannot empty")
     private List<ColisDTO> colis;
-    private List<LivraisonDTO> livraisons;
+
+    
+
 }
 

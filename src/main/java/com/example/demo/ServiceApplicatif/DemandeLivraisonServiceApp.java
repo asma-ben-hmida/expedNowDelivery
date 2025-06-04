@@ -55,30 +55,23 @@ public class DemandeLivraisonServiceApp {
        demandeLivraisonServiceMetier.AcceptationParlivreur(userId, demandeId);
     }
  
-     public void annulerLivraisonParClient(LivraisonDTO livraisonDto, UserDTO userDto, DemandeLivraisonDTO demandeDto) {
-        
-        Livraison livraison = livraisonMapper.toEntity(livraisonDto);
-        User user = userMapper.toEntity(userDto);
-        DemandeLivraison demandeLivraison = demandeLivraisonMapper.toEntity(demandeDto);
+     public void annulerLivraisonParClient(Long  livraisonId, Long userId, Long demandeId) {
 
         demandeLivraisonServiceMetier.annulerLivraisonParClient(livraison, user, demandeLivraison);
     }
 
-    public void commencerLivraison(LivraisonDTO livraisonDto, UserDTO userDto) {
+    public void commencerLivraison(Long livraisonId, Long userId) {
 
-        Livraison livraison = livraisonMapper.toEntity(livraisonDto);
-        User user = userMapper.toEntity(userDto);
-        demandeLivraisonServiceMetier.CommencerLivraison(livraison, user);
+        demandeLivraisonServiceMetier.CommencerLivraison(livraisonId, userId);
 
     }
 
-      public void livraisonAchever(LivraisonDTO livraisonDto, DemandeLivraisonDTO demandeDto, UserDTO userDto) {
+    public void livraisonAchever(Long livraisonId, Long userId) {
         
-        Livraison livraison = livraisonMapper.toEntity(livraisonDto);
-        DemandeLivraison demande = demandeLivraisonMapper.toEntity(demandeDto);
-        User user = userMapper.toEntity(userDto);
-
-        demandeLivraisonServiceMetier.livraisonAchever(livraison, demande, user);    }
+      
+       demandeLivraisonServiceMetier.livraisonAchever(livraisonId,  userId);   
+    
+    }
 
 }
 

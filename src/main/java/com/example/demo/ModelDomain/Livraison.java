@@ -31,10 +31,10 @@ public class Livraison {
 
        private LivraisonStatus statut;
 
-       private Date dateLivraison;
+       private Date datePrevuLivraison;
 
    @ManyToOne 
-   @JoinColumn(name = "livraison")
+   @JoinColumn(name = "demandelivraison")
    private DemandeLivraison demandeLivraison;
 
    @ManyToOne

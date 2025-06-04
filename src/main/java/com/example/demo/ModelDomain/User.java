@@ -1,7 +1,6 @@
 package com.example.demo.ModelDomain;
 
 import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,7 +27,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // Auto-increment id
     private Long id;
 
-  
+   
+
 
     @Column(nullable = false)
     private String password;
@@ -48,7 +48,7 @@ public class User {
     private UserRole role;  
 
   @OneToMany(mappedBy = "user")
-  private Notifications notifications;
+  private List<Notifications> notifications;
 
   @OneToOne(mappedBy = "user")
   private Vehicule vehicule;
@@ -62,20 +62,26 @@ public class User {
  @OneToMany(mappedBy = "livreur")
  private List<Livraison> livraisonsLivreur;
   
+ private double latitude;
+private double longitude;
 
-    private boolean active = true;
+private boolean disponible = true;
+private boolean active = true;
 
-     public User(String address,String password, String fullName, String email, String phoneNumber,List<DemandeLivraison> demandesClient,List<Livraison> livraisonsLivreur, UserRole role,boolean active,Notifications notifications,Vehicule vehicule,Livraison livraison) {
+     public User(String address,String password, String fullName, double latitude, double longitude, String email, String phoneNumber,List<DemandeLivraison> demandesClient,List<Livraison> livraisonsLivreur, UserRole role,boolean disponible,boolean active,Notifications notifications,Vehicule vehicule,Livraison livraison) {
         this.password = password;
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.role = role;
-        this.active =active;
-        this.notifications = notifications;
+        this.disponible = disponible;
+        this.latitude=latitude;
+        this.longitude = longitude;
         this.vehicule =vehicule;
         this.livraison =livraison;
         this.adress = adress;
+        this.disponible=disponible;
+        this.active = active;
         this.demandesClient=demandesClient;
         this.livraisonsLivreur = livraisonsLivreur;
     }

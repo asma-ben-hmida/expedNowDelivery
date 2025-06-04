@@ -2,47 +2,63 @@ package com.example.demo.ServiceMetier;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.ModelDomain.Colis;
 import com.example.demo.ModelDomain.DemandeLivraison;
 import com.example.demo.ModelDomain.DemandeLivraisonStatus;
 import com.example.demo.ModelDomain.Livraison;
 import com.example.demo.ModelDomain.LivraisonStatus;
+import com.example.demo.repository.ColisRepository;
 import com.example.demo.repository.DemandeLivraisonRepository;
 import com.example.demo.repository.LivraisonRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.ModelDomain.User;
 import com.example.demo.ModelDomain.UserRole;
+import com.example.demo.ServiceMetier.ColisServiceMetier;
+import com.example.demo.ServiceMetier.LivraisonServiceMetier;
+import java.util.List;
 
 import java.util.Date;
 import java.util.Set;
+
 
 @Service
 public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
 
 
     private DemandeLivraisonRepository demandeLivraisonRepository;
-        private LivraisonRepository livraisonRepository;
         private UserMetierService userMetierService;
          private UserRepository userrRepository;
+         private ColisServiceMetier colisServiceMetier;
+         private ColisRepository colisRepository;
+         private LivraisonServiceMetier livraisonServiceMetier;
+         private LivraisonRepository livraisonRepository;
 
-   public DemandeLivraisonSMImpl(DemandeLivraisonRepository demandeLivraisonRepository,UserRepository userRepository, LivraisonRepository livraisonRepository,UserMetierService userMetierService)
+   public DemandeLivraisonSMImpl(DemandeLivraisonRepository demandeLivraisonRepository, LivraisonRepository livraisonRepository, LivraisonServiceMetier livraisonServiceMetier,ColisServiceMetier colisServiceMetier,UserRepository userRepository,UserMetierService userMetierService)
+
           {
            
             this.demandeLivraisonRepository = demandeLivraisonRepository;
-            this.livraisonRepository = livraisonRepository;
             this.userMetierService = userMetierService;
             this.userrRepository = userRepository;
+            this.colisServiceMetier = colisServiceMetier;
+            this.livraisonServiceMetier= livraisonServiceMetier;
+            this.livraisonRepository = livraisonRepository;
             
           }
 
-    public DemandeLivraison saveDemandeLivraison(DemandeLivraison demande)
+    public void saveDemandeLivraison(DemandeLivraison demande)
           {
-          return demandeLivraisonRepository.save(demande);
+           demande.setStatus(DemandeLivraisonStatus.En_ATTENTE);
+           DemandeLivraison savedDemande = demandeLivraisonRepository.save(demande);
+          
+           Livraison livraison = new Livraison();
+           livraison.setStatut(LivraisonStatus.CREER);
+           livraison.setDemandeLivraison(savedDemande);
+           livraisonRepository.save(livraison);
+        
           }
   
-     public Livraison saveLivraison(Livraison livraison)
-          {
-            return livraisonRepository.save(livraison);
-          }
+  
           
      
      public DemandeLivraison update(Long id, DemandeLivraison updatedDemande) {  
@@ -51,8 +67,19 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
         .map(existing -> {
             existing.setStatus(updatedDemande.getStatus());
             existing.setDatecreationdemande(updatedDemande.getDatecreationdemande());
-            existing.setColis(updatedDemande.getColis());
-            existing.setLivraison(updatedDemande.getLivraison());
+             
+          List<Colis> existingColisList = existing.getColis();
+          List<Colis> updatedColisList = updatedDemande.getColis();
+
+          for(int i =0 ; i<existingColisList.size();i++){
+            
+            Colis colisExisting = existingColisList.get(i);
+            Colis colisupdated = updatedColisList.get(i);
+
+           colisServiceMetier.updateColis(colisExisting.getId(), colisupdated);
+          }
+
+
             return demandeLivraisonRepository.save(existing);
         })
         .orElseThrow(() -> new RuntimeException("Demande de livraison non trouvée avec l'ID : " + id));
@@ -62,16 +89,16 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
 
       public void annulerDemandeParClient(Long demandeId, Long  userId ) {
     
-        DemandeLivraison   demamdeLivraison = demandeLivraisonRepository.findById(demandeId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+        DemandeLivraison   demandeLivraison = demandeLivraisonRepository.findById(demandeId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
         
-        User    user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+        User    user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("user introuvable"));
 
 
               if (!Set.of(UserRole.CLIENT_ENTREPRiSE, UserRole.CLIENT_PROFESSIONNEL).contains(user.getRole())) {
                   throw new RuntimeException("invalid role");
               }
 
-              if (!Set.of(DemandeLivraisonStatus.En_ATTENTE, DemandeLivraisonStatus.TRAITER).contains(demandeLivraison.getStatus())) {
+              if (!Set.of(DemandeLivraisonStatus.En_ATTENTE, DemandeLivraisonStatus.EN_COURS).contains(demandeLivraison.getStatus())) {
 
                      throw new RuntimeException("invalid demande status");
                   }
@@ -85,108 +112,29 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
                   saveDemandeLivraison(demandeLivraison);
 
             }      
-      
 
-         public void AcceptationParlivreur(Long userId, Long demandeId){
 
-                DemandeLivraison   demamdeLivraison = demandeLivraisonRepository.findById(demandeId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
-        
-                 User    user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+            public void deleteDemande(Long id){
 
-                    if (!Set.of(UserRole.LIVREUR_PERMANENT, UserRole.LIVREUR_OCCASIONNEL).contains(user.getRole())) {
+              if (!demandeLivraisonRepository.existsById(id)){
+                throw new RuntimeException("demande non trouve");
+              }
+              demandeLivraisonRepository.deleteById(id);
+              
+            }
 
-                      throw new RuntimeException("Rôle non autorisé pour accepter une demande");
-                    
-                     
-                      }
-                    if (demandeLivraison.getStatus() != DemandeLivraisonStatus.En_ATTENTE)
-                    
-                    {
-                       throw new RuntimeException("invalid demande status ");
-                    }
-                        Livraison livraison = new Livraison(LivraisonStatus.CREER, new Date(),demandeLivraison,user) ;
-                        saveLivraison(livraison);
-                        demandeLivraison.setStatus(DemandeLivraisonStatus.TRAITER);    
-                        saveDemandeLivraison(demandeLivraison);
-
-                    }
-    
-
-      public void annulerLivraisonParClient(Long livraisonId,Long userId,Long demandeId){
           
-                DemandeLivraison   demamdeLivraison = demandeLivraisonRepository.findById(demandeId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
-        
-                 User  user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+       
 
-                 Livraison  livraison=livraisonRepository.findById(livraisonId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
-
-            if (!Set.of(UserRole.CLIENT_ENTREPRiSE, UserRole.CLIENT_PROFESSIONNEL).contains(user.getRole()))
-             {
-               throw new RuntimeException("Rôle non autorisé pour annuler livraison");
-             }
-                  if (!Set.of(LivraisonStatus.CREER, LivraisonStatus.EN_COURS).contains(livraison.getStatut())) 
-                  {
-                    throw new RuntimeException("status non autorise");
-                  }
-
-                   if (!demandeLivraison.getClient().getId().equals(user.getId()))
-          
-                    { 
-                      throw new RuntimeException("Ce livreur n'est pas assigné à cette livraison.");
-                    }
-                     livraison.setStatut(LivraisonStatus.ANNULER);
-                     livraisonRepository.save(livraison);
-                     demandeLivraison.setStatus(DemandeLivraisonStatus.ANNULER);
-                     demandeLivraisonRepository.save(demandeLivraison);
-                    }
-
-
-      public void CommencerLivraison(Livraison livraisonId, User userId){
-        
-         User  user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
-
-         Livraison  livraison=livraisonRepository.findById(livraisonId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
-        
-        if (!Set.of(UserRole.LIVREUR_PERMANENT,UserRole.LIVREUR_OCCASIONNEL).contains(user.getRole()))
-         {
-            throw new IllegalArgumentException("Rôle non autorisé pour commencer livraison");
-          }
            
-          if (!livraison.getLivreur().getId().equals(user.getId()))
-          
-          { 
-            throw new RuntimeException("Ce livreur n'est pas assigné à cette livraison.");
-          }
 
-         if(livraison.getStatut() != LivraisonStatus.CREER)
-          {
-            throw new IllegalArgumentException("La livraison doit être au statut 'CREEE' pour être commencée");
-          }
-            livraison.setStatut(LivraisonStatus.EN_COURS);
-            livraisonRepository.save(livraison);
-      }
-
-      public void livraisonAchever(Livraison livraisonId , User userId){
-        User  user=userrRepository.findById(userId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
-
-        Livraison  livraison=livraisonRepository.findById(livraisonId).orElseThrow(() -> new RuntimeException("Demande introuvable"));
+        }
         
-        if (!Set.of(UserRole.LIVREUR_PERMANENT,UserRole.LIVREUR_OCCASIONNEL).contains(user.getRole()))
-         {
-            throw new IllegalArgumentException("Rôle non autorisé pour commencer livraison");
-          }
-           
-          if (!livraison.getLivreur().getId().equals(user.getId()))
-          
-          { 
-            throw new RuntimeException("Ce livreur n'est pas assigné à cette livraison.");
-          }
-          livraison.setStatut(LivraisonStatus.SUCCES);
-          demandeLivraison.setStatus(DemandeLivraisonStatus.SUCCES);
-          livraisonRepository.save(livraison);
-          demandeLivraisonRepository.save(demandeLivraison);
 
-      }
+     
+
+
+     
 
      
 
@@ -197,7 +145,8 @@ public class DemandeLivraisonSMImpl implements DemandeLivraisonServiceMetier{
               
         
     
- }
+ 
+        
 
     
 

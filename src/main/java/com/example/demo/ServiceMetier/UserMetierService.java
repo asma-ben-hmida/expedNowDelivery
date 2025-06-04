@@ -5,6 +5,7 @@ import com.example.demo.ModelDTO.UserDTO;
 import com.example.demo.ModelDomain.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserMetierService {
 
@@ -15,4 +16,8 @@ public interface UserMetierService {
     void desactiveUser(Long id);
     void activateUser(Long id) ;
     User updateUser(Long id, User updatedUser);
+    List<User>  getLivreursdispos();
+    Optional<User> getLivreurDispoEtProche(double latitudeDemande ,double longitudeDemande );
+
+
 }

@@ -12,5 +12,8 @@ public class UserDTO {
     private String email;
     private String phoneNumber;
     private UserRole role;
-    private boolean active;
+    private boolean active; 
+    private double latitude;
+    private double longitude;
+
 }

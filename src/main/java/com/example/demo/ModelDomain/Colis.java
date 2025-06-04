@@ -19,12 +19,15 @@ public class Colis {
 
 private long id;
 private String description;
-private String destinataire;
+
+private String destination;
+
+private String adresseDépart;
+
 private FragiliteColis fragiliteColis;
 
 @ManyToOne(optional = false)
 @JoinColumn(name = "colis")
-// Référence à l'objet Livraison auquel ce colis est associé
 private DemandeLivraison demandeLivraison;
 
 

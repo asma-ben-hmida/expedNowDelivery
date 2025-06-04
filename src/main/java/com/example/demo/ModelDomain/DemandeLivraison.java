@@ -36,25 +36,26 @@ public class DemandeLivraison {
     @ManyToOne
     @JoinColumn(name = "client_id" , nullable = false)
     private User client;
-   
-    @ManyToOne
-    @JoinColumn(name = "livreur_id")
-    private User livreur;
-       
+
+    
     @OneToMany(mappedBy = "colis")
     private List<Colis> colis;
 
        
-    @OneToMany(mappedBy = "livraison")
+    @OneToMany(mappedBy = "demandelivraison")
     private List<Livraison> livraison;
+
+    private double latitude;
+    private double longitude;
     
-public DemandeLivraison(DemandeLivraisonStatus status, LocalDate datecreationdemande, User client, User livreur, List<Colis> colis, List<Livraison> livraison) {
+public DemandeLivraison(DemandeLivraisonStatus status,double latitude, double longitude, LocalDate datecreationdemande, User client, List<Colis> colis, List<Livraison> livraison) {
     this.status = status;
     this.datecreationdemande = datecreationdemande;
     this.client = client;
-    this.livreur = livreur;
     this.colis = colis;
     this.livraison = livraison;
+    this.latitude=latitude;
+    this.longitude=longitude;
 }
 
 
